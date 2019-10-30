@@ -1,6 +1,8 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Web Scraping Attempts"
+output:
+  html_document:
+    df_print: paged
 ---
 
 Let's scrape some data, but first, some housekeeping. We are going to install the tidyverse package (and my, what a package it is). We will use rvest to scrape the data and tidyr and dplyr to manipulate it
