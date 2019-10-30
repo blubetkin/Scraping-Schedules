@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Let's scrape some data, but first, some housekeeping. We are going to install the tidyverse package (and my, what a package it is). We will use rvest to scrape the data and tidyr and dplyr to manipulate it
+```{r}
+#install.packages("tidyverse")
+library("rvest")
+library("tidyr")
+library("dplyr")
+```
+Next, let's create a function that will read in a url and then scrape the webpage for the data we want: the subject, the catalog number, the class number, title of class, instructor, and how many are enrolled. Then, we will put it into its own data frame called class_table.
+```{r}
+read_class_schedule <- function(url){
+  
+read_url <- url
+
+the_html <- read_html(read_url)
+
+classes <- the_html %>% html_nodes(".classrow")
+
+subjects <- classes %>% 
+                      html_nodes("td.subj") %>%
+                      html_text()
+
+cat_num <- classes %>% 
+                      html_nodes("td.cat_num") %>%
+                      html_text()
+section_number <- classes %>% 
+                      html_nodes("td.sect") %>%
+                      html_text()
+
+title <- classes %>% 
+                      html_nodes("td.title") %>%
+                      html_text()
+Instructor <- classes %>% 
+                      html_nodes("td.Instructor") %>%
+                      html_text()
+
+enrollment <- classes %>% 
+                      html_nodes("td.enrtot") %>%
+                      html_text()
+
+
+class_table <- tibble(subject = subjects, catalog_number = cat_num, section_number = section_number,title = title, instructor = Instructor, total_enrolled = enrollment)
+}
+```
+Next, we will call the function and pass in all four of the websites we want to scrape data from. Finally, we will bind all of this data into one large dataframe that incorporates all of the classes and their information from the chosen websites.
+```{r}
+Math_2019 <- read_class_schedule("http://ems.csuchico.edu/APSS/schedule/spr2019/MATH.shtml")
+Math_2020 <- read_class_schedule("http://ems.csuchico.edu/APSS/schedule/spr2020/MATH.shtml")
+CSCI_2019 <- read_class_schedule("http://ems.csuchico.edu/APSS/schedule/spr2019/CSCI.shtml")
+CSCI_2020 <- read_class_schedule("http://ems.csuchico.edu/APSS/schedule/spr2020/CSCI.shtml")
+
+all_the_classes_together <- bind_rows(Math_2019, Math_2020, CSCI_2019, CSCI_2020)
+print(all_the_classes_together)
+```
